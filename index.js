@@ -1,52 +1,29 @@
 import express from 'express';
 import axios from 'axios';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const app = express();
 app.use(express.json());
 
-const PORT = process.env.PORT || 10000;
-const GEO_USERNAME = process.env.GEO_USERNAME;
-const GEO_PASSWORD = process.env.GEO_PASSWORD;
+const PORT = 10000;
 
-const API_TOKEN_URL = 'https://geocall.arkonecall.com/api/account/token';
-const API_RESPONSE_URL = 'https://geocall.arkonecall.com/detail/ticketdefault?numbers=';
+// Replace this with the known working token from ReqBin
+const KNOWN_GOOD_TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // <== full token here
 
 app.post('/get-responses', async (req, res) => {
   const { ticket } = req.body;
   if (!ticket) return res.status(400).json({ error: 'Ticket number is required.' });
 
-  console.log('📦 ENV vars:', GEO_USERNAME, GEO_PASSWORD ? '[hidden]' : 'MISSING');
-  console.log('🎟️ Requesting token for ticket:', ticket);
-
   try {
-    // Get auth token
-    const tokenRes = await axios.post(API_TOKEN_URL, {
-      username: GEO_USERNAME,
-      password: GEO_PASSWORD
-    }, {
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    const token = tokenRes.data.token;
-    console.log('🔑 Retrieved token:', token);
-
-    // Use token to get ticket responses
-    const responseRes = await axios.get(`${API_RESPONSE_URL}${ticket}`, {
+    const response = await axios.get(`https://geocall.arkonecall.com/detail/ticketdefault?numbers=${ticket}`, {
       headers: {
-        Accept: 'application/json',
-        Authorization: `Bearer ${token}`
+        'Accept': 'application/json',
+        'Authorization': KNOWN_GOOD_TOKEN
       }
     });
 
-    console.log('✅ Response received successfully.');
-    res.json(responseRes.data);
-
+    res.json(response.data);
   } catch (error) {
-    console.error('❌ Error retrieving responses:', error.message);
-    console.error('↪ Response data:', error.response?.data);
+    console.error('❌ Error retrieving responses:', error.response?.status, error.response?.data);
     res.status(500).json({
       error: 'Failed to retrieve responses',
       details: error.response?.data || error.message
