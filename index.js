@@ -25,7 +25,7 @@ app.post('/get-responses', async (req, res) => {
       {
         headers: {
           Accept: 'application/json',
-          Authorization: `Bearer ${token}`
+          'Authorization': `Bearer ${token}`  // ✅ Correct format
         }
       }
     );
