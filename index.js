@@ -9,7 +9,8 @@ app.use(express.json());
 const API_TOKEN_URL = 'https://geocall.arkonecall.com/api/account/token';
 const API_RESPONSE_URL = 'https://geocall.arkonecall.com/detail/ticketdefault?numbers=';
 
-const { PORT = 10000, GEO_USERNAME, GEO_PASSWORD } = process.env;
+const { GEO_USERNAME, GEO_PASSWORD } = process.env;
+const PORT = process.env.PORT;
 
 app.post('/get-responses', async (req, res) => {
   const { ticket } = req.body;
